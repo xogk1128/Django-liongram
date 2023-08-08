@@ -25,17 +25,21 @@ def post_list_view(request):
     return render(request, 'posts/post_list.html', context)
 
 def post_detail_view(request, id):
-    try:
-        post = Post.objects.get(id=id)
-        if not request.user.is_authenticated:
-            return redirect('/accounts/login')
-    except Post.DoesNotExist:
-        return redirect('index')
-    context = {
-        'post' : post,
-        'form' : PostDetailForm(),
-    }
-    return render(request, 'posts/post_detail.html', context)
+    # 로그인 되어 있는 사용자인 경우
+    if request.user.is_authenticated:
+        try:
+            post = Post.objects.get(id=id)
+            
+        except Post.DoesNotExist:
+            return redirect('index')
+        context = {
+            'post' : post,
+            'form' : PostDetailForm(),
+        }
+        return render(request, 'posts/post_detail.html', context)
+    # 로그인이 되어 있지 않은 경우
+    else:
+        return redirect('accounts:login')
 
 @login_required
 def post_create_view(request):
